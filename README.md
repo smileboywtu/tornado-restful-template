@@ -56,6 +56,8 @@ pip install -r requirements.txt
 ```shell
 source project/bin/activate
 python run.py
+
+celery -A tasks.celery worker -c 10 --loglevel=info
 ```
 
 # Unittest

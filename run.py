@@ -17,9 +17,8 @@ from tornado.process import task_id
 
 from application.app import make_app
 from application.health_check import health_check
+from common.configer.file_config import FileConfig
 from common.loggers import configure_tornado_logger
-from common.mysql_driver import MysqlTK
-from common.redis_driver import RedisTK
 
 
 async def init_db():
@@ -72,7 +71,6 @@ def after_fork_init(ioloop, app):
     configure_tornado_logger(app.settings["APP_LOG_PATH"], name="tornado.application")
     configure_tornado_logger(app.settings["GEN_LOG_PATH"], name="tornado.general")
 
-
     # 这里保证缓存只在一个进程中进行，如果不是 multiple fork 模式的话，
     # 0 号进程负责缓存任务， 如果是多进程模式， 那么还是由编号 0 的进程
     # 任务执行缓存任务
@@ -101,15 +99,8 @@ def load_settings(config_file):
     
     :return: 
     """
-    return {
-        "COOKIE_SECRET": "example",
-        "PORT": 8009,
-        "PROCESS_NUM": 1,
-        "HEALTH_CHECK_PERIOD": 5,
-        "APP_LOG_PATH": "app.log",
-        "GEN_LOG_PATH": "gen.log",
-        "ACC_LOG_PATH": "access.log"
-    }
+
+    return FileConfig(config_file)
 
 
 def start_server():
@@ -118,7 +109,7 @@ def start_server():
     :return:
     """
     ## load settings
-    settings = load_settings("config.yaml")
+    settings = load_settings("config.yaml").settings
 
     ## create app and update settings
     app = make_app(settings["COOKIE_SECRET"])
@@ -134,6 +125,8 @@ def start_server():
     ioloop = asyncio.get_event_loop()
     after_fork_init(ioloop, app)
     ioloop.run_forever()
+
+    ##TODO docker
 
 
 if __name__ == "__main__":

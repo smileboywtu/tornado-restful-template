@@ -11,3 +11,10 @@ msgpack-python==0.5.5
 
 ## validator
 jsonschema==2.6.0
+
+## celery
+Celery==4.2.1
+
+
+## yaml
+pyyaml==3.13
