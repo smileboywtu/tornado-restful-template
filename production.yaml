@@ -1,0 +1,73 @@
+version: "3"
+
+volumes:
+  production_postgres_data: {}
+  production_postgres_data_backups: {}
+  production_caddy: {}
+
+services:
+  django: &django
+    build:
+      context: .
+      dockerfile: compose/production/tornado/Dockerfile
+    image: app_production_django
+    depends_on:
+      - postgres
+      - redis
+      - proxy
+    env_file:
+      - ./.envs/.production/.tornado
+      - ./.envs/.production/.mysql
+    ports:
+      - "0.0.0.0:8000:5000"
+    command: /start
+
+  postgres:
+    build:
+      context: .
+      dockerfile: ./compose/production/postgres/Dockerfile
+    image: app_production_postgres
+    volumes:
+      - production_postgres_data:/var/lib/postgresql/data
+      - production_postgres_data_backups:/backups
+    env_file:
+      - ./.envs/.production/.mysql
+
+  proxy:
+    build:
+      context: .
+      dockerfile: ./compose/production/shadowsocks/Dockerfile
+    image: app_production_proxy
+    env_file:
+      - ./.envs/.production/.shadowsocks
+    command: /start
+
+  redis:
+    image: redis:3.2
+
+  celeryworker:
+    <<: *django
+    image: app_production_celeryworker
+    depends_on:
+      - redis
+      - postgres
+      - proxy
+    ports: []
+    command: /start-celeryworker
+
+  celerybeat:
+    <<: *django
+    image: app_production_celerybeat
+    depends_on:
+      - redis
+      - postgres
+      - proxy
+    ports: []
+    command: /start-celerybeat
+
+  flower:
+    <<: *django
+    image: app_production_flower
+    ports:
+      - "5555:5555"
+    command: /start-flower

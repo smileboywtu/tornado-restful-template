@@ -1,7 +1,7 @@
 # workspace
 .idea/
-env/production/*
-!env/production/.gitkeep
+.env/.production/*
+!.env/.production/.gitkeep
 *.log
 
 # Byte-compiled / optimized / DLL files

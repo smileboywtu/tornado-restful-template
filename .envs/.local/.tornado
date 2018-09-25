@@ -1,0 +1,10 @@
+# Redis
+# ------------------------------------------------------------------------------
+REDIS_HOST=redis
+REDIS_PORT=6379
+REDIS_DB=0
+REDIS_PASSWD=
+
+# Config
+# ------------------------------------------------------------------------------
+COOKIE_SECRET=9wlwvcYxOWAZyg9QINHhaZbVUR7PiS3guL66

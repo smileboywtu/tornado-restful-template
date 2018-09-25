@@ -1,7 +1,7 @@
 COOKIE_SECRET: example
 
-PORT: 8009
-PROCESS_NUM: 1
+PORT: 80
+PROCESS_NUM: 0
 
 HEALTH_CHECK_PERIOD: 5
 
@@ -9,15 +9,13 @@ APP_LOG_PATH: app.log
 GEN_LOG_PATH: gen.log
 ACC_LOG_PATH: access.log
 
-Redis_Server:
-  host:
-  port:
-  db:
-  password:
+REDIS_HOST:
+REDIS_PORT:
+REDIS_DB:
+REDIS_PASSWD:
 
-Mysql_Server:
-  host:
-  port:
-  db:
-  user:
-  password:
+MYSQL_HOST:
+MYSQL_PORT:
+MYSQL_DATABASE:
+MYSQL_USER:
+MYSQL_PASSWORD:

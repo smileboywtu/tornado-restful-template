@@ -1,0 +1,8 @@
+# MySQL
+# ------------------------------------------------------------------------------
+MYSQL_HOST=mysql
+MYSQL_PORT=5432
+MYSQL_DATABASE=app
+MYSQL_USER=tornado
+MYSQL_PASSWORD=GVT7h8Up1l6JPHgrEax7JJg7GJFh9wlwvcYxOWAZyg9QINHhaZbVUR7PiS3guL66
+MYSQL_RANDOM_ROOT_PASSWORD=yes

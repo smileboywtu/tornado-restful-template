@@ -1,0 +1,61 @@
+version: '3'
+
+volumes:
+  local_mysql_data: {}
+
+services:
+  tornado: &tornado
+    build:
+      context: .
+      dockerfile: compose/local/tornado/Dockerfile
+    image: app_local_tornado
+    depends_on:
+      - mysql
+    volumes:
+      - .:/app
+    env_file:
+      - .envs/.local/.tornado
+      - .envs/.local/.mysql
+    ports:
+      - "8000:80"
+    command: /start
+
+  mysql:
+    image: mysql/5.7
+    volumes:
+      - local_mysql_data:/var/lib/mysql
+    env_file:
+      - .envs/.local/.mysql
+    command:
+      - "--character-set-server=utf8mb4"
+      - "--collation-server=utf8mb4_unicode_ci"
+
+  redis:
+    image: redis:3.2
+
+  celeryworker:
+    <<: *tornado
+    image: app_local_celeryworker
+    depends_on:
+      - redis
+      - mysql
+
+    ports: []
+    command: /start-celeryworker
+
+  celerybeat:
+    <<: *tornado
+    image: app_local_celerybeat
+    depends_on:
+      - redis
+      - mysql
+
+    ports: []
+    command: /start-celerybeat
+
+  flower:
+    <<: *tornado
+    image: app_local_flower
+    ports:
+      - "5555:5555"
+    command: /start-flower

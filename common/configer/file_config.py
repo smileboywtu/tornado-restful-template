@@ -35,9 +35,10 @@ class FileConfig():
         environment start with APP_
         :return: 
         """
-        for key, value in os.environ.items():
-            if key.startswith("APP_"):
-                self._settings[key] = value
+        # for key, value in os.environ.items():
+        #     if key.startswith("APP_"):
+        #         self._settings[key] = value
+        self._settings.update(os.environ)
 
     def reload(self):
         self._load_file()
