@@ -20,20 +20,22 @@ from .validator import schemas
 
 class CounterTC(BaseTestCase):
     def mock_redis_class(self):
-        patcher = mock.patch("application.handlers.counter.handler.RedisTK", return_value={})
+        class FutureDict():
+            def __init__(self, data):
+                self.__data = data
+
+            async def get(self, key):
+                return self.__data.get(key)
+
+        patcher = mock.patch("application.handlers.counter.handler.RedisTK", return_value=FutureDict({
+            "zhangsan": 1
+        }))
         self._patcher.append(patcher)
         patcher.start()
         return patcher
 
-    def mock_redis_get(self):
-        patcher = self.mock_future("application.handlers.counter.handler.CounterView.get.cache.get", {
-            "zhangdan": 1
-        })
-        return patcher
-
     def test_counter_get(self):
         self.mock_redis_class()
-        self.mock_redis_get()
         params = {
             "name": "zhangsan"
         }
@@ -43,7 +45,7 @@ class CounterTC(BaseTestCase):
         print(response.body)
         self.assertEqual(response.code, 200, msg="请求异常, status_code: {}".format(response.code))
         rjson = json.loads(response.body.decode())
-        self.assertEqual(rjson["status"], 0, msg="请求异常")
+        self.assertEqual(rjson["code"], 0, msg="请求异常")
 
     def test_validate_get(self):
         data = {
