@@ -12,22 +12,41 @@
 import asyncio
 import os
 
+import uvloop
 from tornado.httpserver import HTTPServer
+from tornado.platform.asyncio import AsyncIOMainLoop
 from tornado.process import task_id
 
 from application.app import make_app
 from application.health_check import health_check
 from common.configer.file_config import FileConfig
 from common.loggers import configure_tornado_logger
+from common.mysql_driver import MysqlTK
+from common.redis_driver import RedisTK
 
 
-async def init_db():
+async def init_db(app):
     """
     初始化数据库连接
     :return:
     """
-    # await RedisTK.initialize_pool()
-    # await MysqlTK.initialize_pool()
+    await RedisTK.initialize_pool(
+        [app.settings["REDIS_HOST"], int(app.settings["REDIS_PORT"])],
+        db=int(app.settings["REDIS_DB"]),
+        password=app.settings["REDIS_PASSWD"] or None,
+        maxsize=100
+    )
+
+    await MysqlTK.initialize_pool(
+        host=app.settings["MYSQL_HOST"],
+        port=int(app.settings["MYSQL_PORT"]),
+        user=app.settings["MYSQL_USER"],
+        db=app.settings["MYSQL_DATABASE"],
+        password=app.settings["MYSQL_PASSWORD"],
+        charset="utf8mb4",
+        minsize=10,
+        maxsize=30
+    )
 
 
 def before_fork_init(app):
@@ -60,22 +79,22 @@ def after_fork_init(ioloop, app):
     """
 
     ## 初始化连接
-    ioloop.run_until_complete(init_db())
+    # ioloop.run_until_complete(init_db(app))
 
     # task ID 可以认为是 tornado 进程编号
     t_id = task_id()
     t_id = t_id if t_id else 0
 
     # 初始化 web 记录日志
-    configure_tornado_logger(app.settings["ACC_LOG_PATH"], name="tornado.access")
-    configure_tornado_logger(app.settings["APP_LOG_PATH"], name="tornado.application")
-    configure_tornado_logger(app.settings["GEN_LOG_PATH"], name="tornado.general")
+    configure_tornado_logger(app.settings["ACC_LOG_PATH"], name="tornado.access", debug=app.settings["DEBUG"])
+    configure_tornado_logger(app.settings["APP_LOG_PATH"], name="tornado.application", debug=app.settings["DEBUG"])
+    configure_tornado_logger(app.settings["GEN_LOG_PATH"], name="tornado.general", debug=app.settings["DEBUG"])
 
     # 这里保证缓存只在一个进程中进行，如果不是 multiple fork 模式的话，
     # 0 号进程负责缓存任务， 如果是多进程模式， 那么还是由编号 0 的进程
     # 任务执行缓存任务
     if t_id == 0:
-        pass
+        ioloop.create_task(period_health_check(ioloop, app))
 
 
 async def period_health_check(ioloop, app):
@@ -111,6 +130,10 @@ def start_server():
     ## load settings
     settings = load_settings("config.yaml").settings
 
+    ## set uvloop
+    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+    AsyncIOMainLoop().install()
+
     ## create app and update settings
     app = make_app(settings["COOKIE_SECRET"])
     app.settings.update(settings)
@@ -119,11 +142,13 @@ def start_server():
     before_fork_init(app)
     server = HTTPServer(app, xheaders=True)
     server.bind(app.settings["PORT"])
-    server.start(app.settings["PROCESS_NUM"])
+    server.start(int(app.settings["PROCESS_NUM"]))
 
     ## after fork
     ioloop = asyncio.get_event_loop()
+
     after_fork_init(ioloop, app)
+
     ioloop.run_forever()
 
     ##TODO docker

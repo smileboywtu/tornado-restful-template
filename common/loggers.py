@@ -9,6 +9,7 @@
 """
 import datetime
 import logging
+import sys
 import uuid
 from logging.handlers import RotatingFileHandler
 
@@ -100,7 +101,7 @@ def log_function(handler):
                "%(response_length)s %(request_time).2f %(request_id)s %(app_id)s [%(request_args)s] -", _log_meta)
 
 
-def logger_config(name, path, level, log_format, max_bytes, backup_count):
+def logger_config(name, path, level, log_format, max_bytes, backup_count, debug=False):
     """
      配置 log handler 对象
      
@@ -112,7 +113,9 @@ def logger_config(name, path, level, log_format, max_bytes, backup_count):
     :param backup_count: 日志文件滚动个数
     :return:
     """
-    handler = RotatingFileHandler(path, "a", maxBytes=max_bytes, backupCount=backup_count, encoding="utf-8")
+    handler = RotatingFileHandler(path, "a", maxBytes=max_bytes, backupCount=backup_count, encoding="utf-8") \
+        if not debug else\
+        logging.StreamHandler(sys.stdout)
     formatter = logging.Formatter(log_format)
     handler.setFormatter(formatter)
     logger = logging.getLogger(name)
@@ -120,7 +123,7 @@ def logger_config(name, path, level, log_format, max_bytes, backup_count):
     logger.addHandler(handler)
 
 
-def configure_tornado_logger(path, name="tornado.application"):
+def configure_tornado_logger(path, name="tornado.application", debug=False):
     """
     
     ## read doc:
@@ -134,9 +137,9 @@ def configure_tornado_logger(path, name="tornado.application"):
     :return: 
     """
     if name == "tornado.access":
-        log_format = "%(message)s"
+        log_format = "%(name)s %(message)s"
     else:
-        log_format = "%(asctime)s %(levelname)s %(request_id)s-%(process)d %(filename)s:%(lineno)d -- %(message)s"
+        log_format = "%(name)s %(asctime)s %(levelname)s %(request_id)s-%(process)d %(filename)s:%(lineno)d -- %(message)s"
 
     return logger_config(
         name=name,
@@ -144,5 +147,6 @@ def configure_tornado_logger(path, name="tornado.application"):
         level="DEBUG",
         log_format=log_format,
         max_bytes=100 * 1024 * 1024,
-        backup_count=7
+        backup_count=7,
+        debug=debug
     )

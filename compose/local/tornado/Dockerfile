@@ -2,6 +2,10 @@ FROM python:3.6-alpine
 
 ENV PYTHONUNBUFFERED 1
 
+# install gcc
+RUN apk update \
+  && apk add --virtual build-deps gcc python3-dev musl-dev alpine-sdk libuv
+
 # Requirements are installed here to ensure they will be cached.
 COPY ./requirements /requirements
 RUN pip install -r /requirements/local.txt

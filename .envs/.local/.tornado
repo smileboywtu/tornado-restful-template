@@ -8,3 +8,5 @@ REDIS_PASSWD=
 # Config
 # ------------------------------------------------------------------------------
 COOKIE_SECRET=9wlwvcYxOWAZyg9QINHhaZbVUR7PiS3guL66
+DEBUG=1
+PROCESS_NUM=1

@@ -12,9 +12,8 @@ services:
       dockerfile: compose/production/tornado/Dockerfile
     image: app_production_django
     depends_on:
-      - postgres
+      - mysql
       - redis
-      - proxy
     env_file:
       - ./.envs/.production/.tornado
       - ./.envs/.production/.mysql
@@ -22,16 +21,15 @@ services:
       - "0.0.0.0:8000:5000"
     command: /start
 
-  postgres:
-    build:
-      context: .
-      dockerfile: ./compose/production/postgres/Dockerfile
-    image: app_production_postgres
+  mysql:
+    image: mysql:5.7
     volumes:
-      - production_postgres_data:/var/lib/postgresql/data
-      - production_postgres_data_backups:/backups
+      - local_mysql_data:/var/lib/mysql
     env_file:
-      - ./.envs/.production/.mysql
+      - .envs/.local/.mysql
+    command:
+      - "--character-set-server=utf8mb4"
+      - "--collation-server=utf8mb4_unicode_ci"
 
   proxy:
     build:

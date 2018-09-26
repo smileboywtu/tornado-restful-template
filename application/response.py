@@ -60,7 +60,7 @@ def _stack_context_handle_exception(type, value, traceback, handler):
     app_logger = logging.LoggerAdapter(app_log, extra={
         "request_id": RequestIDContext._data.request_id
     })
-
+    print(value, traceback)
     if isinstance(value, ServerException):
         app_logger.error("%s" % str(value), exc_info=True)
         handler.write(str(value))

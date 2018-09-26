@@ -11,4 +11,4 @@
 """
 
 async def health_check():
-    pass
+    print("--> ")

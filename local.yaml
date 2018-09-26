@@ -11,6 +11,7 @@ services:
     image: app_local_tornado
     depends_on:
       - mysql
+      - redis
     volumes:
       - .:/app
     env_file:
@@ -21,7 +22,7 @@ services:
     command: /start
 
   mysql:
-    image: mysql/5.7
+    image: mysql:5.7
     volumes:
       - local_mysql_data:/var/lib/mysql
     env_file:
@@ -33,29 +34,29 @@ services:
   redis:
     image: redis:3.2
 
-  celeryworker:
-    <<: *tornado
-    image: app_local_celeryworker
-    depends_on:
-      - redis
-      - mysql
-
-    ports: []
-    command: /start-celeryworker
-
-  celerybeat:
-    <<: *tornado
-    image: app_local_celerybeat
-    depends_on:
-      - redis
-      - mysql
-
-    ports: []
-    command: /start-celerybeat
-
-  flower:
-    <<: *tornado
-    image: app_local_flower
-    ports:
-      - "5555:5555"
-    command: /start-flower
+#  celeryworker:
+#    <<: *tornado
+#    image: app_local_celeryworker
+#    depends_on:
+#      - redis
+#      - mysql
+#
+#    ports: []
+#    command: /start-celeryworker
+#
+#  celerybeat:
+#    <<: *tornado
+#    image: app_local_celerybeat
+#    depends_on:
+#      - redis
+#      - mysql
+#
+#    ports: []
+#    command: /start-celerybeat
+#
+#  flower:
+#    <<: *tornado
+#    image: app_local_flower
+#    ports:
+#      - "5555:5555"
+#    command: /start-flower
