@@ -41,7 +41,8 @@ class CounterView(BaseHandler):
             raise ServerException("params_err", str(e))
 
         cache = RedisTK()
-        number = await cache.get(data["name"]) or 0
+        number = await cache.get(data["name"])
+        number = int(number) if number else 0
         self.json("success", data={
             "number": int(number)
         })

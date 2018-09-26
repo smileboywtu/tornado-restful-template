@@ -12,6 +12,7 @@ import json
 from unittest import mock
 
 from jsonschema import validate, ValidationError
+from tornado.httputil import url_concat
 
 from tests.base_testcase import BaseTestCase
 from .validator import schemas
@@ -19,20 +20,25 @@ from .validator import schemas
 
 class CounterTC(BaseTestCase):
     def mock_redis_class(self):
-        patcher = mock.patch("application.handlers.counter.handler.RedisTK", return_value={
-            "zhangsan": 1
-        })
+        patcher = mock.patch("application.handlers.counter.handler.RedisTK", return_value={})
         self._patcher.append(patcher)
         patcher.start()
         return patcher
 
+    def mock_redis_get(self):
+        patcher = self.mock_future("application.handlers.counter.handler.CounterView.get.cache.get", {
+            "zhangdan": 1
+        })
+        return patcher
+
     def test_counter_get(self):
         self.mock_redis_class()
-        data = json.dumps({
+        self.mock_redis_get()
+        params = {
             "name": "zhangsan"
-        })
-
-        response = self.fetch("/api/v1/counter", method="GET", body=data, headers={'Origin': "test"})
+        }
+        url = url_concat("/api/v1/counter", params)
+        response = self.fetch(url, method="GET", headers={'Origin': "test"})
 
         print(response.body)
         self.assertEqual(response.code, 200, msg="请求异常, status_code: {}".format(response.code))

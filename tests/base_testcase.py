@@ -62,7 +62,7 @@ class BaseTestCase(AsyncHTTPSTestCase):
         for patcher in self._patcher:
             patcher.stop()
 
-    def _mock_future(self, method, return_value):
+    def mock_future(self, method, return_value):
         """
         Mock 协程/Future对象
         :param method: 需要被 mock 的方法

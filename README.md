@@ -76,6 +76,13 @@ python run_benchmark.py
 
 # Docker
 
+你需要先配置 `.env/.local/` 下面的文件，配置完成后用 `docker-compose` 来启动应用：
+
+```shell
+sudo docker-compose -f local.yaml build
+sudo docker-compose -f local.yaml up
+```
+
 
 # log sample
 
