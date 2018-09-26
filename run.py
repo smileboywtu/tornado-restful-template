@@ -79,7 +79,7 @@ def after_fork_init(ioloop, app):
     """
 
     ## 初始化连接
-    # ioloop.run_until_complete(init_db(app))
+    ioloop.run_until_complete(init_db(app))
 
     # task ID 可以认为是 tornado 进程编号
     t_id = task_id()

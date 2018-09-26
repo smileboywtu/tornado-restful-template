@@ -40,8 +40,6 @@ class CounterView(BaseHandler):
         except ValidationError as e:
             raise ServerException("params_err", str(e))
 
-        print(data)
-
         cache = RedisTK()
         number = await cache.get(data["name"]) or 0
         self.json("success", data={

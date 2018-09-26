@@ -35,5 +35,5 @@ class RedisTK():
             *args, **kwargs
         )
 
-    def __getattribute__(self, item):
+    def __getattr__(self, item):
         return attrgetter(item)(self.__client)
