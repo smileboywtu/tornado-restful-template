@@ -3,6 +3,8 @@
 Tornado 是 Python 的一个异步 Web 开发框架，可以提供很高的并发，另外框架本身简单，可以当作一个库来使用，
 非常适合用来开发 Restful 风格的 API。
 
+[![asciicast](https://asciinema.org/a/YTtcBNnOItY8IRXjBx7E70VIc.png)](https://asciinema.org/a/YTtcBNnOItY8IRXjBx7E70VIc)
+
 # Feature
 
 - [x] Python 3.5+ Async / Await 支持
