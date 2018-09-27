@@ -5,6 +5,7 @@ help:
 	@echo "  down          stops the running docker-compose containers"
 	@echo "  rebuild       rebuilds the image from scratch without using any cached layers"
 	@echo "  test          starts run unittest inside web container."
+	@echo "  lint          use pylint to check all .py files"
 
 
 build:
@@ -21,3 +22,6 @@ rebuild:
 
 test:
 	sudo docker-compose -f local.yaml exec tornado python run_test.py
+
+lint:
+	sudo docker-compose -f local.yaml exec tornado pylint --rcfile 3rds/pylint/pylint.txt -f colorized --ignore-patterns test*.py *.py

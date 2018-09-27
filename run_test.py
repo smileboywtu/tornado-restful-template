@@ -26,7 +26,7 @@ def load_tests(dir_name):
     return unittest.TestLoader().discover(dir_name)
 
 
-class TestRunner(object):
+class TestRunner():
     def __init__(self):
         self.all_suite = unittest.TestSuite()
         self.output = StringIO()

@@ -10,3 +10,8 @@ REDIS_PASSWD=
 COOKIE_SECRET=9wlwvcYxOWAZyg9QINHhaZbVUR7PiS3guL66
 DEBUG=1
 PROCESS_NUM=1
+
+# Celery
+# ------------------------------------------------------------------------------
+CELERY_FLOWER_USER=root
+CELERY_FLOWER_PASSWORD=smileboywtu

@@ -5,4 +5,4 @@ set -o pipefail
 set -o nounset
 
 
-celery -A bonance.taskapp beat -l INFO --max-interval 1
+celery -A celery_app.celery_app beat -l INFO --max-interval 1

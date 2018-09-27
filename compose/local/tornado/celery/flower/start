@@ -5,6 +5,6 @@ set -o nounset
 
 
 celery flower \
-    --app=bonance.taskapp \
-    --broker="${CELERY_BROKER_URL}" \
+    --app=celery_app.celery_app \
+    --broker="redis://:${REDIS_PASSWD}@${REDIS_HOST}:${REDIS_PORT}/${REDIS_DB}" \
     --basic_auth="${CELERY_FLOWER_USER}:${CELERY_FLOWER_PASSWORD}"
