@@ -69,9 +69,10 @@ python run_test.py
 
 # Benchmark
 
+使用 [wrk](https://github.com/wg/wrk) 进行测试：
+
 ```shell
-source project/bin/activate
-python run_benchmark.py
+./wrk -c 100 -t 5 -d 20s http://localhost:8000/api/v1/counter\?name\=zhangsan
 ```
 
 # Docker
