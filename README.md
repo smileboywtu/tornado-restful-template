@@ -5,7 +5,15 @@ Tornado 是 Python 的一个异步 Web 开发框架，可以提供很高的并�
 
 [![asciicast](https://asciinema.org/a/YTtcBNnOItY8IRXjBx7E70VIc.png)](https://asciinema.org/a/YTtcBNnOItY8IRXjBx7E70VIc)
 
-# Feature
+
+任务监控：
+
+![text](./3rds/screens/flower01.png)
+![text](./3rds/screens/flower02.png)
+![text](./3rds/screens/flower02.png)
+
+
+# 特性
 
 - [x] Python 3.5+ Async / Await 支持
 - [x] uvloop 支持
@@ -23,36 +31,6 @@ Tornado 是 Python 的一个异步 Web 开发框架，可以提供很高的并�
 - [x] pylint 代码检查
 - [x] 常见 python 漏洞扫描
 - [x] benchmark 测试
-
-# headers
-
-add customer header at `base_handler.py`。
-
-```shell
-Access-Control-Allow-Credentials: true
-Access-Control-Allow-Methods: POST, GET, PUT, PATCH, DELETE, HEAD, OPTIONS
-Access-Control-Allow-Origin: 
-Cache-Control: no-cache, no-store, must-revalidate
-Content-Length: 112
-Content-Type: text/javascript;charset=UTF-8
-Date: Sun, 23 Sep 2018 09:59:56 GMT
-Etag: "4ba583c5d680eecc835af558d0f0225c73e2f60e"
-Expires: 0
-Pragma: no-cache
-Server: TornadoServer/5.1.1
-X-Request-Id: ed297d6f511f4951a3dbe9ecb368d3bf
-```
-
-# Requirements
-
-参见 `requirements`。
-
-```shell
-virtualenv project
-source project/bin/activate
-
-pip install -r requirements/local.txt
-```
 
 # Run
 
@@ -93,11 +71,11 @@ sudo docker-compose -f local.yaml up
 
 目前可以直接使用 `make` 来操作 `docker-compose` , 具体参见 `make help`。
 
-# Celery
+# Celery 任务
 
 celery 的配置在 `celery_app.py` 中，celery 的任务可以写在 `celery_tasks.tasks` 中。
 
-# log sample
+# 日志模板
 
 tornado log file content example:
 
