@@ -11,6 +11,7 @@ Tornado 是 Python 的一个异步 Web 开发框架，可以提供很高的并�
 - [x] middleware error handle
 - [x] request_id support
 - [x] celery 后台任务
+- [x] flower 任务监控
 - [x] health check 健康检查
 - [x] log 定制
 - [x] docker 支持
