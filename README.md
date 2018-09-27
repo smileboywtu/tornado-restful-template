@@ -54,17 +54,21 @@ pip install -r requirements.txt
 # Run
 
 ```shell
-source project/bin/activate
-python run.py
-
-celery -A tasks.celery worker -c 10 --loglevel=info
+make up
 ```
 
 # Unittest
 
 ```shell
-source project/bin/activate
-python run_test.py
+make test
+```
+
+# Pylint
+
+使用 `pylint` 来检查代码，pylint 的配置文件在 `3rd/pylint/pylint.rc`。
+
+```shell
+make lint
 ```
 
 # Benchmark
@@ -84,6 +88,11 @@ sudo docker-compose -f local.yaml build
 sudo docker-compose -f local.yaml up
 ```
 
+目前可以直接使用 `make` 来操作 `docker-compose` , 具体参见 `make help`。
+
+# Celery
+
+celery 的配置在 `celery_app.py` 中，celery 的任务可以写在 `celery_tasks.tasks` 中。
 
 # log sample
 

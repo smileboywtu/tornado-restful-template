@@ -1,16 +1,15 @@
 version: "3"
 
 volumes:
-  production_postgres_data: {}
-  production_postgres_data_backups: {}
-  production_caddy: {}
+  production_mysql_data: {}
+  production_mysql_data_backups: {}
 
 services:
-  django: &django
+  tornado: &tornado
     build:
       context: .
       dockerfile: compose/production/tornado/Dockerfile
-    image: app_production_django
+    image: app_production_tornado
     depends_on:
       - mysql
       - redis
@@ -18,7 +17,7 @@ services:
       - ./.envs/.production/.tornado
       - ./.envs/.production/.mysql
     ports:
-      - "0.0.0.0:8000:5000"
+      - "0.0.0.0:8000:80"
     command: /start
 
   mysql:
@@ -31,40 +30,29 @@ services:
       - "--character-set-server=utf8mb4"
       - "--collation-server=utf8mb4_unicode_ci"
 
-  proxy:
-    build:
-      context: .
-      dockerfile: ./compose/production/shadowsocks/Dockerfile
-    image: app_production_proxy
-    env_file:
-      - ./.envs/.production/.shadowsocks
-    command: /start
-
   redis:
     image: redis:3.2
 
   celeryworker:
-    <<: *django
+    <<: *tornado
     image: app_production_celeryworker
     depends_on:
       - redis
-      - postgres
-      - proxy
+      - mysql
     ports: []
     command: /start-celeryworker
 
   celerybeat:
-    <<: *django
+    <<: *tornado
     image: app_production_celerybeat
     depends_on:
       - redis
-      - postgres
-      - proxy
+      - mysql
     ports: []
     command: /start-celerybeat
 
   flower:
-    <<: *django
+    <<: *tornado
     image: app_production_flower
     ports:
       - "5555:5555"
