@@ -42,13 +42,13 @@ X-Request-Id: ed297d6f511f4951a3dbe9ecb368d3bf
 
 # Requirements
 
-参见 `requirements.txt`。
+参见 `requirements`。
 
 ```shell
 virtualenv project
 source project/bin/activate
 
-pip install -r requirements.txt
+pip install -r requirements/local.txt
 ```
 
 # Run
