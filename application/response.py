@@ -9,11 +9,12 @@ User Response
 
 """
 import json
+import logging
 from functools import wraps, partial
 
-import logging
-from tornado import stack_context
+from tornado import stack_context, gen
 from tornado.log import app_log
+from tornado.stack_context import run_with_stack_context
 
 from application.errors import ERRORS
 from common.loggers import RequestIDContext
@@ -56,11 +57,9 @@ class ServerException(Exception):
 
 
 def _stack_context_handle_exception(type, value, traceback, handler):
-
     app_logger = logging.LoggerAdapter(app_log, extra={
         "request_id": RequestIDContext._data.request_id
     })
-    print(value, traceback)
     if isinstance(value, ServerException):
         app_logger.error("%s" % str(value), exc_info=True)
         handler.write(str(value))
@@ -75,10 +74,12 @@ def _stack_context_handle_exception(type, value, traceback, handler):
 
 def handle_exception(method):
     @wraps(method)
-    async def __wrapper__(*args, **kwargs):
+    @gen.coroutine
+    def __wrapper__(*args, **kwargs):
         _stack_context_handle_exception_partial = partial(_stack_context_handle_exception, handler=args[0])
-        with stack_context.ExceptionStackContext(
-                _stack_context_handle_exception_partial, delay_warning=True):
-            return await method(*args, **kwargs)
+        yield run_with_stack_context(
+            stack_context.ExceptionStackContext(_stack_context_handle_exception_partial, delay_warning=True),
+            lambda: method(*args, **kwargs)
+        )
 
     return __wrapper__

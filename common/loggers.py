@@ -114,7 +114,7 @@ def logger_config(name, path, level, log_format, max_bytes, backup_count, debug=
     :return:
     """
     handler = RotatingFileHandler(path, "a", maxBytes=max_bytes, backupCount=backup_count, encoding="utf-8") \
-        if not debug else\
+        if not debug else \
         logging.StreamHandler(sys.stdout)
     formatter = logging.Formatter(log_format)
     handler.setFormatter(formatter)
