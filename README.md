@@ -35,6 +35,15 @@ celery flower task monitor：
 - pylint code check
 - wrk web api benchmark test
 
+# Environment
+
+you need to install `docker-ce` please follow [this](https://docs.docker.com/install/linux/docker-ce/ubuntu/).
+after install docker, you can install docker-compose use pip:
+
+```shell
+pip install docker-compose
+```
+
 # Operations
 
 current supported operations:
