@@ -1,36 +1,55 @@
 # Tornado Web Template
 
-Tornado 是 Python 的一个异步 Web 开发框架，可以提供很高的并发，另外框架本身简单，可以当作一个库来使用，
-非常适合用来开发 Restful 风格的 API。
+![text](https://img.shields.io/badge/python-3.6-green.svg)
+
+Tornado is AsyncIO web framework, which is famous for high concurrency IO operation 
+that is very suitable for developing restful style web APIs.
 
 [![asciicast](https://asciinema.org/a/YTtcBNnOItY8IRXjBx7E70VIc.png)](https://asciinema.org/a/YTtcBNnOItY8IRXjBx7E70VIc)
 
 
-任务监控：
+celery flower task monitor：
 
 ![text](./3rds/screens/flower01.png)
+
 ![text](./3rds/screens/flower02.png)
+
 ![text](./3rds/screens/flower03.png)
 
 
-# 特性
+# Feature
 
-- [x] Python 3.5+ Async / Await 支持
-- [x] uvloop 支持
-- [x] json schema 参数校验
-- [x] middleware error handle
-- [x] request_id support
-- [x] celery 后台任务
-- [x] flower 任务监控
-- [x] health check 健康检查
-- [x] log 定制
-- [x] docker 支持
-- [x] redis 支持
-- [x] mysql 支持
-- [x] unittest 支持
-- [x] pylint 代码检查
-- [x] 常见 python 漏洞扫描
-- [x] benchmark 测试
+- Python 3.5+ Async / Await support
+- uvloop 
+- celery tasks
+- docker compose support
+- json schema web params validate
+- middleware error handler
+- request_id support
+- flower task monitor
+- health check task support
+- custom log style
+- aioredis pool 
+- aiomysql pool
+- unittest template
+- pylint code check
+- wrk web api benchmark test
+
+# Operations
+
+current supported operations:
+
+```shell
+(tornado-restful-cookiecutter) ➜  tornado-restful-cookiecutter make help
+Please use 'make <target>' where <target> is one of
+  build         builds docker-compose containers
+  up            starts docker-compose containers
+  down          stops the running docker-compose containers
+  rebuild       rebuilds the image from scratch without using any cached layers
+  test          starts run unittest inside web container.
+  lint          use pylint to check all .py files
+
+```
 
 # Run
 
@@ -44,9 +63,20 @@ make up
 make test
 ```
 
+output:
+
+```shell
+(tornado-restful-cookiecutter) ➜  tornado-restful-cookiecutter make test   
+sudo docker-compose -f local.yaml exec tornado python run_test.py
+b'{"code": 0, "data": {"number": 1}, "msg": ""}'
+测试失败:  []
+测试错误:  []
+测试结果: 通过 <unittest.runner.TextTestResult run=2 errors=0 failures=0>
+```
+
 # Pylint
 
-使用 `pylint` 来检查代码，pylint 的配置文件在 `3rd/pylint/pylint.rc`。
+use `pylint` to lint \*.py files and the pylint config is `3rd/pylint/pylint.rc`.
 
 ```shell
 make lint
@@ -54,28 +84,17 @@ make lint
 
 # Benchmark
 
-使用 [wrk](https://github.com/wg/wrk) 进行测试：
+use [wrk](https://github.com/wg/wrk) to run api load test:
 
 ```shell
 ./wrk -c 100 -t 5 -d 20s http://localhost:8000/api/v1/counter\?name\=zhangsan
 ```
 
-# Docker
+# Celery tasks
 
-你需要先配置 `.env/.local/` 下面的文件，配置完成后用 `docker-compose` 来启动应用：
+celery application instance is inside `celery_app.py`, you can write celery task in `celery_tasks.tasks`.
 
-```shell
-sudo docker-compose -f local.yaml build
-sudo docker-compose -f local.yaml up
-```
-
-目前可以直接使用 `make` 来操作 `docker-compose` , 具体参见 `make help`。
-
-# Celery 任务
-
-celery 的配置在 `celery_app.py` 中，celery 的任务可以写在 `celery_tasks.tasks` 中。
-
-# 日志模板
+# Log template
 
 tornado log file content example:
 

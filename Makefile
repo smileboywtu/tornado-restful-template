@@ -24,4 +24,4 @@ test:
 	sudo docker-compose -f local.yaml exec tornado python run_test.py
 
 lint:
-	sudo docker-compose -f local.yaml exec tornado pylint --rcfile 3rds/pylint/pylint.txt -f colorized --ignore-patterns test*.py *.py
+	sudo docker-compose -f local.yaml exec tornado touch __init__.py && pylint --rcfile 3rds/pylint/pylint.txt -f colorized --ignore-patterns test*.py *.py && rm __init__.py
