@@ -103,6 +103,11 @@ use [wrk](https://github.com/wg/wrk) to run api load test:
 
 celery application instance is inside `celery_app.py`, you can write celery task in `celery_tasks.tasks`.
 
+# Celery Flower
+
+`flower` is a celery task monitor tool, you can't view it at `:5555` port, the `username` and `password` is configured 
+in `.envs/.local` file.
+
 # Log template
 
 tornado log file content example:
