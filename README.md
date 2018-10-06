@@ -106,7 +106,7 @@ celery application instance is inside `celery_app.py`, you can write celery task
 # Celery Flower
 
 `flower` is a celery task monitor tool, you can't view it at `:5555` port, the `username` and `password` is configured 
-in `.envs/.local` file.
+in `.envs/.local/.tornado` file.
 
 # Log template
 
