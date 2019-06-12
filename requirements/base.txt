@@ -1,6 +1,7 @@
+--index-url https://pypi.tuna.tsinghua.edu.cn/simple
+
 ## tornado web framework
 tornado==5.1.1
-uvloop==0.11.2
 
 ## aiomysql driver
 aiomysql==0.0.9
@@ -9,6 +10,7 @@ PyMySQL==0.8.0
 ## aioredis
 aioredis
 redis==2.10.6
+motor==2.0.0
 msgpack-python==0.5.5
 
 ## validator

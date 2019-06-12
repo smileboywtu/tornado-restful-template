@@ -11,7 +11,7 @@ import datetime
 import logging
 import sys
 import uuid
-from logging.handlers import RotatingFileHandler
+from logging.handlers import TimedRotatingFileHandler
 
 from tornado import gen
 from tornado.log import access_log
@@ -101,10 +101,17 @@ def log_function(handler):
                "%(response_length)s %(request_time).2f %(request_id)s %(app_id)s [%(request_args)s] -", _log_meta)
 
 
-def logger_config(name, path, level, log_format, max_bytes, backup_count, debug=False):
+class RequestIDFilter(logging.Filter):
+    def filter(self, record):
+        record.request_id = RequestIDContext._data.request_id
+        return True
+
+
+def logger_config(name, path, level, log_format, rotate_interval, backup_count,
+                  debug=False):
     """
      配置 log handler 对象
-     
+
     :param name: 日志名称
     :param path: 日志文件路径
     :param level: 日志等级
@@ -113,40 +120,55 @@ def logger_config(name, path, level, log_format, max_bytes, backup_count, debug=
     :param backup_count: 日志文件滚动个数
     :return:
     """
-    handler = RotatingFileHandler(path, "a", maxBytes=max_bytes, backupCount=backup_count, encoding="utf-8") \
+    logger = logging.getLogger(name)
+    logger.addFilter(RequestIDFilter())
+    handler = TimedRotatingFileHandler(
+        path, when='D', interval=rotate_interval, backupCount=backup_count,
+        encoding="utf-8") \
         if not debug else \
         logging.StreamHandler(sys.stdout)
+    # handler = RotatingFileHandler(path, "a", maxBytes=max_bytes, backupCount=backup_count, encoding="utf-8") \
+    #     if not debug else \
+    #     logging.StreamHandler(sys.stdout)
     formatter = logging.Formatter(log_format)
     handler.setFormatter(formatter)
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
+    log_level = getattr(logging, level)
+    logger.setLevel(log_level)
     logger.addHandler(handler)
 
 
-def configure_tornado_logger(path, name="tornado.application", debug=False):
+def configure_tornado_logger(path, interval, backup_count,
+                             level="INFO",
+                             name="tornado.application",
+                             debug=False):
     """
-    
+
     ## read doc:
     https://docs.python.org/3/library/logging.html#logrecord-attributes
-    
+
     tornado web application log_format:
     %(asctime)s %(levelname)s %(request_id)-%(process)d %(filename)s:%(lineno)d -- %(message)s
-    
+
     :param path: log file path
+    :param level: log level
     :param name: log name
-    :return: 
+    :param debug: if debug, show logs on stdout
+    :return:
     """
     if name == "tornado.access":
-        log_format = "%(name)s %(message)s"
+        log_format = "[%(name)s] %(message)s"
+    elif name == "plugins":
+        log_format = "[%(name)s] %(asctime)s %(levelname)s -- %(message)s"
     else:
-        log_format = "%(name)s %(asctime)s %(levelname)s %(request_id)s-%(process)d %(filename)s:%(lineno)d -- %(message)s"
+        log_format = "[%(name)s] %(asctime)s %(levelname)s %(request_id)s %(filename)s:%(lineno)d -- %(message)s"
 
     return logger_config(
         name=name,
         path=path,
-        level="DEBUG",
+        level=level,
         log_format=log_format,
-        max_bytes=100 * 1024 * 1024,
-        backup_count=7,
+        # max_bytes=100 * 1024 * 1024,
+        rotate_interval=interval,
+        backup_count=backup_count,
         debug=debug
     )

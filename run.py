@@ -11,15 +11,16 @@
 
 import asyncio
 import os
+import signal
+import time
 
-import uvloop
 from tornado.httpserver import HTTPServer
-from tornado.platform.asyncio import AsyncIOMainLoop
+from tornado.ioloop import IOLoop
 from tornado.process import task_id
 
 from application.app import make_app
 from application.health_check import health_check
-from common.configer.file_config import FileConfig
+from common.configer.file_config import config
 from common.loggers import configure_tornado_logger
 from common.mysql_driver import MysqlTK
 from common.redis_driver import RedisTK
@@ -86,9 +87,20 @@ def after_fork_init(ioloop, app):
     t_id = t_id if t_id else 0
 
     # 初始化 web 记录日志
-    configure_tornado_logger(app.settings["ACC_LOG_PATH"], name="tornado.access", debug=app.settings["DEBUG"])
-    configure_tornado_logger(app.settings["APP_LOG_PATH"], name="tornado.application", debug=app.settings["DEBUG"])
-    configure_tornado_logger(app.settings["GEN_LOG_PATH"], name="tornado.general", debug=app.settings["DEBUG"])
+    configure_tornado_logger(app.settings["ACC_LOG_PATH"],
+                             app.settings["LOG_ROTATE_DAY"],
+                             app.settings["LOG_BACKUP"],
+                             name="tornado.access", debug=app.settings["DEBUG"])
+    configure_tornado_logger(app.settings["APP_LOG_PATH"],
+                             app.settings["LOG_ROTATE_DAY"],
+                             app.settings["LOG_BACKUP"],
+                             name="tornado.application",
+                             debug=app.settings["DEBUG"])
+    configure_tornado_logger(app.settings["GEN_LOG_PATH"],
+                             app.settings["LOG_ROTATE_DAY"],
+                             app.settings["LOG_BACKUP"],
+                             name="tornado.general",
+                             debug=app.settings["DEBUG"])
 
     # 这里保证缓存只在一个进程中进行，如果不是 multiple fork 模式的话，
     # 0 号进程负责缓存任务， 如果是多进程模式， 那么还是由编号 0 的进程
@@ -110,16 +122,28 @@ async def period_health_check(ioloop, app):
     ioloop.create_task(period_health_check(ioloop, app))
 
 
-def load_settings(config_file):
-    """
-    load all config setting into tornado app settings.
-    
-    :param config_file: config file 
-    
-    :return: 
-    """
+def make_safely_shutdown(server, ioloop):
+    io_loop = ioloop or IOLoop.instance()
 
-    return FileConfig(config_file)
+    def stop_handler(*args, **keywords):
+        def shutdown():
+            server.stop()  # this may still disconnection backlogs at a low probability
+            deadline = time.time() + config.SHUTDOWN_MAX_WAIT_TIME
+
+            def stop_loop():
+                now = time.time()
+                if now < deadline and (io_loop._callbacks or io_loop._timeouts):
+                    io_loop.add_timeout(now + 1, stop_loop)
+                else:
+                    io_loop.stop()
+
+            stop_loop()
+
+        io_loop.add_callback(shutdown)
+
+    signal.signal(signal.SIGQUIT, stop_handler)
+    signal.signal(signal.SIGTERM, stop_handler)
+    signal.signal(signal.SIGINT, stop_handler)
 
 
 def start_server():
@@ -128,11 +152,7 @@ def start_server():
     :return:
     """
     ## load settings
-    settings = load_settings("config.yaml").settings
-
-    ## set uvloop
-    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
-    AsyncIOMainLoop().install()
+    settings = config
 
     ## create app and update settings
     app = make_app(settings["COOKIE_SECRET"])
@@ -146,12 +166,11 @@ def start_server():
 
     ## after fork
     ioloop = asyncio.get_event_loop()
+    make_safely_shutdown(server, ioloop)
 
     after_fork_init(ioloop, app)
 
     ioloop.run_forever()
-
-    ##TODO docker
 
 
 if __name__ == "__main__":
