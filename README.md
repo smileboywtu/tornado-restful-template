@@ -31,9 +31,11 @@ celery flower task monitor：
 - custom log style
 - aioredis pool 
 - aiomysql pool
+- aiomongo pool
 - unittest template
 - pylint code check
 - wrk web api benchmark test
+- function level timeit
 
 # Environment
 
